@@ -4,8 +4,8 @@ import { Reveal, Section, SectionHeading } from "./Reveal";
 
 export function SkillsOrbit() {
   const rings = [
-    { radius: 132, items: orbitSkills.slice(0, 5), duration: 34 },
-    { radius: 210, items: orbitSkills.slice(5, 12), duration: 52 },
+    { diameter: "min(54vw, 264px)", items: orbitSkills.slice(0, 5), duration: 34 },
+    { diameter: "min(86vw, 420px)", items: orbitSkills.slice(5, 12), duration: 52 },
   ];
 
   return (
@@ -18,9 +18,9 @@ export function SkillsOrbit() {
         />
 
         <Reveal delay={0.15}>
-          <div className="relative mx-auto flex aspect-square w-full max-w-[520px] items-center justify-center">
+          <div className="relative mx-auto flex aspect-square w-full max-w-[min(520px,calc(100vw-2rem))] items-center justify-center">
             <div className="absolute inset-0 rounded-full bg-primary/10 blur-[90px]" aria-hidden />
-            <div className="glass flex h-28 w-28 items-center justify-center rounded-full text-center font-display text-sm shadow-glow">
+            <div className="glass flex h-24 w-24 items-center justify-center rounded-full text-center font-display text-[11px] shadow-glow sm:h-28 sm:w-28 sm:text-sm">
               Core
               <br />
               Stack
@@ -28,16 +28,16 @@ export function SkillsOrbit() {
 
             {rings.map((ring) => (
               <div
-                key={ring.radius}
-                className="pointer-events-none absolute rounded-full border border-border"
-                style={{ width: ring.radius * 2, height: ring.radius * 2 }}
+                key={ring.diameter}
+                className="pointer-events-none absolute inset-0 m-auto rounded-full border border-border"
+                style={{ width: ring.diameter, height: ring.diameter }}
                 aria-hidden
               />
             ))}
 
             {rings.map((ring) => (
               <motion.div
-                key={`items-${ring.radius}`}
+                key={`items-${ring.diameter}`}
                 className="absolute inset-0"
                 animate={{ rotate: 360 }}
                 transition={{ duration: ring.duration, ease: "linear", repeat: Infinity }}
@@ -49,7 +49,7 @@ export function SkillsOrbit() {
                       key={skill}
                       className="absolute left-1/2 top-1/2"
                       style={{
-                        transform: `rotate(${angle}deg) translateX(${ring.radius}px) rotate(-${angle}deg)`,
+                        transform: `rotate(${angle}deg) translateX(calc(${ring.diameter} / 2)) rotate(-${angle}deg)`,
                       }}
                     >
                       <div style={{ transform: "translate(-50%, -50%)" }}>

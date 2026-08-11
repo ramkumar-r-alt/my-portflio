@@ -1,4 +1,4 @@
-import resumeAsset from "@/assets/Ramkumar-R-Resume.pdf.asset.json";
+import resumeUrl from "@/assets/Ramkumar-Resume.pdf?url";
 
 export type Project = {
   slug: string;
@@ -32,7 +32,7 @@ export const profile = {
   email: "ram232488@gmail.com",
   linkedin: "https://www.linkedin.com/in/ramkumar-r-052b92179/",
   github: "https://github.com/ramkumar-r-alt",
-  resume: resumeAsset.url,
+  resume: resumeUrl,
 };
 
 export const heroBadges = [

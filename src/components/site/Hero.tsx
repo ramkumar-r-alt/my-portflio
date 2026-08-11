@@ -17,7 +17,7 @@ export function Hero() {
     <section
       id="hero"
       ref={ref}
-      className="relative flex min-h-[100svh] items-center overflow-hidden bg-hero-glow"
+      className="relative flex min-h-screen items-center overflow-hidden bg-hero-glow"
     >
       <div className="pointer-events-none absolute inset-0 grid-bg" aria-hidden />
       <div
@@ -31,7 +31,7 @@ export function Hero() {
 
       <motion.div
         style={{ y, opacity }}
-        className="relative mx-auto grid w-full max-w-7xl items-center gap-14 px-6 py-32 text-center lg:grid-cols-[1.15fr_0.85fr] lg:gap-10 lg:px-10 lg:text-left"
+        className="relative mx-auto grid w-full max-w-7xl items-center gap-14 px-4 py-20 text-center sm:px-6 sm:py-28 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10 lg:px-10 lg:py-32 lg:text-left"
       >
         <div>
           <motion.span
@@ -134,7 +134,9 @@ export function Hero() {
           </div>
         </div>
 
-        <HeroArt />
+        <div className="hidden lg:block">
+          <HeroArt />
+        </div>
 
         <motion.div
           initial={{ opacity: 0 }}
