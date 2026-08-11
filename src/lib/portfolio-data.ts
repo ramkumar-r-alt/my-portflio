@@ -90,7 +90,7 @@ export const orbitSkills = [
 export const experience = [
   {
     period: "Feb 2026 — Jul 2026",
-    role: "Full Stack Developer",
+    role: "Full Stack Engineer",
     company: "AlMukarramah Consulting Services",
     location: "Bengaluru, India",
     detail:
@@ -143,9 +143,57 @@ export const achievements = [
 ];
 
 export const projects: Project[] = [
+ 
   {
+    slug: "trade57",
+    name: "Trade57.ai",
+    tagline: "Enterprise B2B trading platform",
+    year: "2026",
+    role: "Full Stack Engineer",
+    accentLabel: "B2B SaaS",
+    caseStudy: false,
+    stack: ["React", "Vite", "Node.js", "PostgreSQL", "Redis", "RabbitMQ"],
+    overview:
+      "A B2B trading platform handling high-frequency order flow, counterparty management and settlement reporting.",
+    problem:
+      "The original schema buckled under order-heavy traffic; report queries locked tables and the UI stalled during peak trading hours.",
+    solution:
+      "Redesigned the relational schema, introduced Redis caching for hot reads and moved reporting and notifications onto RabbitMQ consumers.",
+    features: [
+      "Real-time order entry and management",
+      "Counterparty and settlement reporting",
+      "Role-scoped admin dashboards",
+      "Async notification pipeline",
+    ],
+    architecture: [
+      "React + Vite SPA with modular feature slices",
+      "Node.js REST APIs with partitioned PostgreSQL order history",
+      "Redis caching for hot pricing reads",
+      "RabbitMQ consumers for reporting and notifications",
+    ],
+    challenges: [
+      "Zero-downtime schema migration on live trading data",
+      "Consistent pricing views across cached and live reads",
+      "Backpressure during burst order volume",
+    ],
+    optimizations: [
+      "Composite indexes and partitioned order history tables",
+      "Event-driven cache invalidation instead of TTL guessing",
+      "Durable queues with retry and dead-letter handling",
+    ],
+    results: [
+      { label: "P95 query time", value: "-72%" },
+      { label: "Peak throughput", value: "4.5x" },
+      { label: "Report generation", value: "-80%" },
+    ],
+    lessons: [
+      "Event-driven invalidation beats TTL heuristics",
+      "Measure before indexing — most guesses are wrong",
+    ],
+  },
+   {
     slug: "flowwork-ai",
-    name: "Flowwork AI",
+    name: "flowwork.ai",
     tagline: "AI workflow copilot for engineering teams",
     year: "2024-2026",
     role: "Software Development Engineer",
@@ -190,53 +238,6 @@ export const projects: Project[] = [
     lessons: [
       "Ship the boring sync layer before the shiny AI layer",
       "A design system pays for itself by week three",
-    ],
-  },
-  {
-    slug: "trade57",
-    name: "Trade57",
-    tagline: "Enterprise B2B trading platform",
-    year: "2026",
-    role: "Full Stack Engineer",
-    accentLabel: "FinTech",
-    caseStudy: false,
-    stack: ["React", "Vite", "Node.js", "PostgreSQL", "Redis", "RabbitMQ"],
-    overview:
-      "A B2B trading platform handling high-frequency order flow, counterparty management and settlement reporting.",
-    problem:
-      "The original schema buckled under order-heavy traffic; report queries locked tables and the UI stalled during peak trading hours.",
-    solution:
-      "Redesigned the relational schema, introduced Redis caching for hot reads and moved reporting and notifications onto RabbitMQ consumers.",
-    features: [
-      "Real-time order entry and management",
-      "Counterparty and settlement reporting",
-      "Role-scoped admin dashboards",
-      "Async notification pipeline",
-    ],
-    architecture: [
-      "React + Vite SPA with modular feature slices",
-      "Node.js REST APIs with partitioned PostgreSQL order history",
-      "Redis caching for hot pricing reads",
-      "RabbitMQ consumers for reporting and notifications",
-    ],
-    challenges: [
-      "Zero-downtime schema migration on live trading data",
-      "Consistent pricing views across cached and live reads",
-      "Backpressure during burst order volume",
-    ],
-    optimizations: [
-      "Composite indexes and partitioned order history tables",
-      "Event-driven cache invalidation instead of TTL guessing",
-      "Durable queues with retry and dead-letter handling",
-    ],
-    results: [
-      { label: "P95 query time", value: "-72%" },
-      { label: "Peak throughput", value: "4.5x" },
-      { label: "Report generation", value: "-80%" },
-    ],
-    lessons: [
-      "Event-driven invalidation beats TTL heuristics",
-      "Measure before indexing — most guesses are wrong",
     ],
   },
   {

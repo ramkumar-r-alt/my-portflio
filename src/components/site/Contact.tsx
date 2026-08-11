@@ -81,7 +81,7 @@ export function Contact() {
       <div className="pointer-events-none absolute inset-0 bg-hero-glow" aria-hidden />
       <div className="relative text-center">
         <Reveal>
-          <span className="eyebrow">08 — Contact</span>
+          <span className="eyebrow">07 — Contact</span>
         </Reveal>
         <Reveal delay={0.08}>
           <h2 className="display-heading mx-auto mt-6 max-w-4xl text-[clamp(2.4rem,7vw,5.5rem)]">

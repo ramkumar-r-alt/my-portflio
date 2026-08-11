@@ -120,7 +120,7 @@ function TiltCard({ project, index }: { project: (typeof projects)[number]; inde
           </div>
         </div>
 
-        <div className="mt-6">
+        {/* <div className="mt-6">
           <p className="eyebrow">Results</p>
           <div className="mt-3 flex flex-wrap gap-3">
             {project.results.map((r) => (
@@ -130,7 +130,7 @@ function TiltCard({ project, index }: { project: (typeof projects)[number]; inde
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
 
         <div className="mt-6">
           <p className="eyebrow">Learnings</p>
@@ -144,7 +144,7 @@ function TiltCard({ project, index }: { project: (typeof projects)[number]; inde
           </ul>
         </div>
 
-        {project.caseStudy ? (
+        {/* {project.caseStudy ? (
           <Link
             to="/work/$slug"
             params={{ slug: project.slug }}
@@ -153,7 +153,7 @@ function TiltCard({ project, index }: { project: (typeof projects)[number]; inde
             Read case study
             <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
           </Link>
-        ) : null}
+        ) : null} */}
       </motion.div>
     </Reveal>
   );

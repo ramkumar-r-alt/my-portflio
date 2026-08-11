@@ -78,18 +78,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Ramkumar R — Full Stack Developer" },
+      { title: "Ramkumar R — Full Stack Engineer" },
       {
         name: "description",
         content:
-          "Portfolio of Ramkumar R, Full Stack Developer building fast, scalable and beautiful digital experiences.",
+          "Portfolio of Ramkumar R, Full Stack Engineer building fast, scalable and beautiful digital experiences.",
       },
       { name: "author", content: "Ramkumar R" },
-      { property: "og:title", content: "Ramkumar R — Full Stack Developer" },
+      { property: "og:title", content: "Ramkumar R — Full Stack Engineer" },
       {
         property: "og:description",
         content:
-          "Portfolio of Ramkumar R, Full Stack Developer building fast, scalable and beautiful digital experiences.",
+          "Portfolio of Ramkumar R, Full Stack Engineer building fast, scalable and beautiful digital experiences.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
