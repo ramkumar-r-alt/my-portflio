@@ -2,125 +2,58 @@ import { experience } from "@/lib/portfolio-data";
 import { Reveal, Section, SectionHeading } from "./Reveal";
 
 export function Experience() {
+  const items = experience.filter((item) => item.company !== "");
+
   return (
-    <Section id="experience" className="overflow-hidden">
+    <Section id="experience">
       <SectionHeading
-        eyebrow="02 — Experience"
-        title="Three years of shipping things people rely on."
+        eyebrow="(02) — Experience"
+        title={
+          <>
+            Three years of shipping <em>things people rely on.</em>
+          </>
+        }
       />
 
-      <div className="relative mx-auto mt-20 max-w-5xl">
-        {/* Background decorative orbs */}
-        <div
-          className="pointer-events-none absolute -top-24 -left-24 h-96 w-96 rounded-full bg-primary/10 blur-[120px]"
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-primary/10 blur-[120px]"
-          aria-hidden
-        />
+      <ol className="mt-20 border-b border-border lg:mt-28">
+        {items.map((item, i) => (
+          <li key={item.company + item.period}>
+            <Reveal>
+              <article className="grid gap-6 border-t border-border py-10 lg:grid-cols-[0.28fr_1fr] lg:gap-10 lg:py-14">
+                <div className="flex items-start justify-between gap-4 font-mono text-[0.7rem] uppercase tracking-[0.16em] lg:flex-col lg:justify-start">
+                  <span>{item.period}</span>
+                  <span className="text-muted-foreground">
+                    ({String(i + 1).padStart(2, "0")}/{String(items.length).padStart(2, "0")})
+                  </span>
+                </div>
 
-        {/* Timeline spine */}
-        <div
-          className="pointer-events-none absolute top-0 bottom-0 left-0 hidden w-px bg-gradient-to-b from-transparent via-border to-transparent lg:left-1/2 lg:block lg:-translate-x-1/2"
-          aria-hidden
-        />
+                <div>
+                  <h3 className="display-heading text-[clamp(2.2rem,4.6vw,4.2rem)]">
+                    {item.role}
+                  </h3>
+                  <p className="mt-3 font-mono text-[0.7rem] uppercase tracking-[0.16em] text-muted-foreground">
+                    {item.company}
+                    {item.location ? ` — ${item.location}` : ""}
+                  </p>
+                  <p className="mt-6 max-w-2xl text-lg leading-relaxed">{item.detail}</p>
 
-        <div className="relative space-y-16 lg:space-y-24">
-          {experience
-            .filter((item) => item.company !== "")
-            .map((item, i) => {
-              const isEven = i % 2 === 0;
-              const isActive = i === 0;
-
-              return (
-                <Reveal key={item.company + item.period} delay={i * 0.12}>
-                  <div className="group relative flex flex-col items-start lg:flex-row lg:items-center">
-                    {/* Text column */}
-                    <div
-                      className={`lg:w-1/2 ${
-                        isEven
-                          ? "lg:pr-16 lg:text-right"
-                          : "lg:pl-16 lg:text-left lg:order-2"
-                      }`}
-                    >
-                      <span className="inline-block rounded-full border border-primary/20 bg-primary/10 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
-                        {item.period}
-                      </span>
-                      <h3 className="display-heading mt-3 text-2xl font-extrabold leading-tight sm:text-3xl">
-                        {item.role}
-                      </h3>
-                      <p className="mt-1 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                        {item.company}
-                        {item.location ? (
-                          <span className="text-border px-2">|</span>
-                        ) : null}
-                        {item.location}
-                      </p>
-                    </div>
-
-                    {/* Timeline node */}
-                    <div
-                      className={`absolute top-0 hidden h-4 w-4 items-center justify-center rounded-full border-2 bg-background lg:flex ${
-                        isActive
-                          ? "border-primary shadow-[0_0_15px_hsl(var(--primary)/0.5)]"
-                          : "border-border group-hover:border-primary"
-                      } ${
-                        isEven
-                          ? "lg:left-1/2 lg:-translate-x-1/2"
-                          : "lg:left-1/2 lg:-translate-x-1/2"
-                      }`}
-                      aria-hidden
-                    >
-                      <span
-                        className={`h-1.5 w-1.5 rounded-full ${
-                          isActive ? "bg-primary" : "bg-border group-hover:bg-primary"
-                        }`}
-                      />
-                    </div>
-
-                    {/* Card column */}
-                    <div
-                      className={`lg:w-1/2 ${
-                        isEven
-                          ? "lg:pl-16"
-                          : "lg:pr-16 lg:order-1"
-                      } mt-6 lg:mt-0`}
-                    >
-                      <div className="group/card relative overflow-hidden rounded-2xl border border-border/60 bg-card/30 p-6 backdrop-blur-md transition-all duration-500 hover:border-primary/30 hover:bg-card/50">
-                        {/* Card glow sweep */}
-                        <div
-                          className="pointer-events-none absolute -inset-px bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 opacity-0 transition-opacity duration-700 group-hover/card:opacity-100"
-                          aria-hidden
-                        />
-
-                        <p className="relative z-10 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                          {item.detail}
-                        </p>
-
-                        <ul className="relative z-10 mt-6 grid max-w-3xl gap-3 sm:grid-cols-2">
-                          {item.highlights.map((h) => (
-                            <li
-                              key={h}
-                              className="flex items-start gap-3 text-xs text-muted-foreground"
-                            >
-                              <span
-                                className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${
-                                  isActive ? "bg-primary" : "bg-primary/50"
-                                }`}
-                              />
-                              <span>{h}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </Reveal>
-              );
-            })}
-        </div>
-      </div>
+                  <ul className="mt-8 grid gap-x-10 gap-y-4 md:grid-cols-2">
+                    {item.highlights.map((h) => (
+                      <li
+                        key={h}
+                        className="flex gap-3 border-t border-border pt-4 text-sm leading-relaxed text-muted-foreground"
+                      >
+                        <span aria-hidden className="mt-[0.45em] h-px w-3 shrink-0 bg-foreground" />
+                        <span>{h}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </article>
+            </Reveal>
+          </li>
+        ))}
+      </ol>
     </Section>
   );
 }

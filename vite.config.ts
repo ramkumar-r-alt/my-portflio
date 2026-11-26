@@ -12,7 +12,9 @@ export default defineConfig({
         entry: "server",
       },
     }),
-    netlify(),
+    // Local edge-function emulation needs a compatible Deno and crashes the dev
+    // server otherwise; this only affects `vite dev`, not the Netlify build.
+    netlify({ dev: { edgeFunctions: { enabled: false } } }),
     react(),
     tailwindcss(),
   ],

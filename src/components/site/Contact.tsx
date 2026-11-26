@@ -1,153 +1,127 @@
-import { ArrowUpRight, Github, Linkedin, Mail } from "lucide-react";
-import { motion, useMotionValue, useSpring } from "motion/react";
-import { useRef, type MouseEvent } from "react";
-import { profile } from "@/lib/portfolio-data";
-import { Reveal, Section } from "./Reveal";
+import { ArrowUpRight } from "lucide-react";
+import { motion, useInView } from "motion/react";
+import { useRef } from "react";
+import { currentRole, profile } from "@/lib/portfolio-data";
 import { MagneticButton } from "./MagneticButton";
+import { Reveal } from "./Reveal";
 
-const cards = [
-  {
-    label: "Email",
-    value: profile.email,
-    href: `mailto:${profile.email}`,
-    Icon: Mail,
-  },
-  {
-    label: "LinkedIn",
-    value: "ramkumar-r-052b92179",
-    href: profile.linkedin,
-    Icon: Linkedin,
-  },
-  {
-    label: "GitHub",
-    value: "ramkumar-r-alt",
-    href: profile.github,
-    Icon: Github,
-  },
+const channels = [
+  { label: "Email", value: profile.email, href: `mailto:${profile.email}` },
+  { label: "LinkedIn", value: "ramkumar-r-052b92179", href: profile.linkedin },
+  { label: "GitHub", value: "ramkumar-r-alt", href: profile.github },
 ];
 
-function SocialCard({ card, index }: { card: (typeof cards)[number]; index: number }) {
-  const ref = useRef<HTMLAnchorElement>(null);
-  const x = useSpring(useMotionValue(0), { stiffness: 240, damping: 18 });
-  const y = useSpring(useMotionValue(0), { stiffness: 240, damping: 18 });
+const ease = [0.16, 1, 0.3, 1] as const;
 
-  const onMove = (e: MouseEvent<HTMLAnchorElement>) => {
-    const rect = ref.current?.getBoundingClientRect();
-    if (!rect) return;
-    x.set((e.clientX - (rect.left + rect.width / 2)) * 0.12);
-    y.set((e.clientY - (rect.top + rect.height / 2)) * 0.12);
-  };
-
-  const { Icon } = card;
-
+function BigLine({ children, delay, inView }: { children: React.ReactNode; delay: number; inView: boolean }) {
   return (
-    <Reveal delay={index * 0.08}>
-      <motion.a
-        ref={ref}
-        href={card.href}
-        target={card.href.startsWith("http") ? "_blank" : undefined}
-        rel={card.href.startsWith("http") ? "noreferrer noopener" : undefined}
-        data-magnetic
-        style={{ x, y }}
-        onMouseMove={onMove}
-        onMouseLeave={() => {
-          x.set(0);
-          y.set(0);
-        }}
-        className="glass shadow-card group relative flex h-full flex-col items-start gap-5 overflow-hidden rounded-3xl p-8 text-left transition-colors duration-500 hover:border-primary/50"
+    <span className="block overflow-hidden pb-[0.06em]">
+      <motion.span
+        className="block"
+        initial={{ y: "100%" }}
+        animate={inView ? { y: 0 } : { y: "100%" }}
+        transition={{ duration: 1.1, delay, ease }}
       >
-        <span
-          className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-primary/25 opacity-0 blur-[70px] transition-opacity duration-500 group-hover:opacity-100"
-          aria-hidden
-        />
-        <span className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/12 text-primary transition-transform duration-300 group-hover:scale-110">
-          <Icon className="h-5 w-5" />
-        </span>
-        <span className="relative">
-          <span className="eyebrow block">{card.label}</span>
-          <span className="mt-2 block font-display text-lg transition-colors group-hover:text-primary">
-            {card.value}
-          </span>
-        </span>
-        <ArrowUpRight className="relative mt-auto h-5 w-5 text-primary transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
-      </motion.a>
-    </Reveal>
+        {children}
+      </motion.span>
+    </span>
   );
 }
 
 export function Contact() {
-  return (
-    <Section id="contact" className="relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-hero-glow" aria-hidden />
-      <div className="relative text-center">
-        <Reveal>
-          <span className="eyebrow">07 — Contact</span>
-        </Reveal>
-        <Reveal delay={0.08}>
-          <h2 className="display-heading mx-auto mt-6 max-w-4xl text-[clamp(2.4rem,7vw,5.5rem)]">
-            Let's build something <span className="text-gradient">worth shipping.</span>
-          </h2>
-        </Reveal>
-        <Reveal delay={0.16}>
-          <p className="mx-auto mt-6 max-w-xl text-muted-foreground">
-            Open to senior full stack and product engineering roles, plus selective freelance work.
-          </p>
-        </Reveal>
-        <Reveal delay={0.24}>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <MagneticButton href={`mailto:${profile.email}`} variant="primary">
-              {profile.email} <Mail className="h-4 w-4" />
-            </MagneticButton>
-            <MagneticButton href={profile.resume} variant="ghost" download>
-              Download Resume <ArrowUpRight className="h-4 w-4" />
-            </MagneticButton>
-          </div>
-        </Reveal>
-      </div>
+  const ref = useRef<HTMLHeadingElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-15%" });
 
-      <div className="relative mt-16 grid gap-6 md:grid-cols-3">
-        {cards.map((card, i) => (
-          <SocialCard key={card.label} card={card} index={i} />
-        ))}
+  return (
+    <section id="contact" className="invert-tone relative bg-background text-foreground">
+      <div className="mx-auto w-full max-w-[1600px] px-5 pb-16 pt-28 sm:px-8 lg:px-12 lg:pt-40">
+        <Reveal>
+          <span className="eyebrow">(06) — Contact</span>
+        </Reveal>
+
+        <h2 ref={ref} className="display-heading mt-8 text-[clamp(3.4rem,12vw,12.5rem)] leading-[0.86]">
+          <BigLine delay={0} inView={inView}>
+            Let&rsquo;s build
+          </BigLine>
+          <BigLine delay={0.08} inView={inView}>
+            something <em>worth</em>
+          </BigLine>
+          <BigLine delay={0.16} inView={inView}>
+            <em>shipping.</em>
+          </BigLine>
+        </h2>
+
+        <div className="mt-16 grid gap-12 lg:mt-24 lg:grid-cols-[1fr_1fr] lg:items-end">
+          <Reveal>
+            <p className="max-w-md text-lg leading-relaxed text-muted-foreground">
+              Currently building at {currentRole.company}. Always happy to talk about thoughtful products,
+              engineering and collaboration.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <MagneticButton href={`mailto:${profile.email}`} variant="primary">
+                Start a conversation <ArrowUpRight className="h-4 w-4" />
+              </MagneticButton>
+              <MagneticButton href={profile.resume} variant="ghost" download>
+                Download résumé
+              </MagneticButton>
+            </div>
+          </Reveal>
+
+          <ul className="border-b border-border">
+            {channels.map((c, i) => (
+              <Reveal as="li" key={c.label} delay={i * 0.06}>
+                <a
+                  href={c.href}
+                  target={c.href.startsWith("http") ? "_blank" : undefined}
+                  rel={c.href.startsWith("http") ? "noreferrer noopener" : undefined}
+                  className="group flex items-center justify-between gap-4 border-t border-border py-5"
+                >
+                  <span className="font-mono text-[0.7rem] uppercase tracking-[0.16em] text-muted-foreground">
+                    {c.label}
+                  </span>
+                  <span className="flex items-center gap-3 text-right">
+                    <span className="display-heading truncate text-[clamp(1.25rem,2.2vw,2rem)] transition-transform duration-500 group-hover:-translate-x-2 group-hover:italic">
+                      {c.value}
+                    </span>
+                    <ArrowUpRight className="h-5 w-5 shrink-0 transition-transform duration-500 group-hover:rotate-45" />
+                  </span>
+                </a>
+              </Reveal>
+            ))}
+          </ul>
+        </div>
       </div>
-    </Section>
+    </section>
   );
 }
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 py-10 sm:flex-row sm:items-center sm:justify-between lg:px-10">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
-          © {new Date().getFullYear()} {profile.name} · {profile.title}
-        </p>
-        <div className="flex items-center gap-5">
-          <a
-            href={profile.github}
-            target="_blank"
-            rel="noreferrer noopener"
-            aria-label="GitHub"
-            className="text-muted-foreground transition-colors hover:text-primary"
-          >
-            <Github className="h-5 w-5" />
-          </a>
-          <a
-            href={profile.linkedin}
-            target="_blank"
-            rel="noreferrer noopener"
-            aria-label="LinkedIn"
-            className="text-muted-foreground transition-colors hover:text-primary"
-          >
-            <Linkedin className="h-5 w-5" />
-          </a>
-          <a
-            href="#hero"
-            className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-primary"
-          >
-            Back to top
-          </a>
+    <footer className="invert-tone relative overflow-hidden bg-background text-foreground">
+      <div className="mx-auto w-full max-w-[1600px] px-5 sm:px-8 lg:px-12">
+        <div className="flex flex-col gap-4 border-t border-border py-6 font-mono text-[0.7rem] uppercase tracking-[0.16em] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            © {new Date().getFullYear()} {profile.name} — {profile.title}
+          </p>
+          <div className="flex items-center gap-6">
+            <a href={profile.github} target="_blank" rel="noreferrer noopener" className="hover:text-foreground">
+              GitHub
+            </a>
+            <a href={profile.linkedin} target="_blank" rel="noreferrer noopener" className="hover:text-foreground">
+              LinkedIn
+            </a>
+            <a href="#hero" className="hover:text-foreground">
+              Back to top ↑
+            </a>
+          </div>
         </div>
       </div>
+      <p
+        aria-hidden
+        className="display-heading select-none whitespace-nowrap px-2 pb-[env(safe-area-inset-bottom)] text-center text-[19.5vw] leading-[0.78] tracking-[-0.045em]"
+      >
+        Ramkumar <em>R</em>
+      </p>
     </footer>
   );
 }

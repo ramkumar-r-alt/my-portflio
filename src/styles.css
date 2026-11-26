@@ -6,8 +6,10 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design system — "Ramkumar R" luxury dark portfolio.
- * All colors are oklch semantic tokens. Never hardcode colors in components.
+ * Design system — "Ramkumar R" monochrome editorial portfolio.
+ * Two inks only: paper (#f2f1ed) and ink (#0b0b0b). Every colour in the UI is
+ * derived from these, so light/dark mode and inverted sections are just a
+ * swap of the two. Never hardcode colours in components — use the tokens.
  */
 
 @theme inline {
@@ -41,119 +43,69 @@
   --color-surface-2: var(--surface-2);
   --color-glow: var(--glow);
 
-  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
 }
 
 :root {
-  --radius: 0.875rem;
-
-  /* Luxury matte black */
-  --background: #080808;
-  --foreground: oklch(0.978 0 0);
-
-  --surface: #111111;
-  --surface-2: #1a1a1a;
-
-  --card: #111111;
-  --card-foreground: oklch(0.978 0 0);
-
-  --popover: #111111;
-  --popover-foreground: oklch(0.978 0 0);
-
-  --primary: #3b82f6;
-  --primary-foreground: oklch(0.14 0 0);
-
-  --glow: color-mix(in oklab, var(--primary) 35%, transparent);
-
-  --secondary: #1c1c1c;
-  --secondary-foreground: oklch(0.95 0 0);
-
-  --muted: #1c1c1c;
-  --muted-foreground: oklch(0.7 0 0);
-
-  --accent: var(--primary);
-  --accent-foreground: oklch(0.14 0 0);
-
-  --destructive: oklch(0.62 0.22 25);
-  --destructive-foreground: oklch(0.98 0 0);
-
-  --border: oklch(1 0 0 / 9%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: color-mix(in oklab, var(--primary) 55%, transparent);
-
-  --gradient-hero:
-    radial-gradient(
-      120% 80% at 50% -10%,
-      color-mix(in oklab, var(--primary) 22%, transparent) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      80% 60% at 90% 10%,
-      color-mix(in oklab, var(--primary) 12%, transparent) 0%,
-      transparent 60%
-    );
-
-  --gradient-text:
-    linear-gradient(
-      100deg,
-      var(--foreground) 0%,
-      color-mix(in oklab, var(--primary) 45%, var(--foreground)) 45%,
-      var(--primary) 100%
-    );
-
-  --gradient-line:
-    linear-gradient(
-      90deg,
-      transparent,
-      color-mix(in oklab, var(--primary) 60%, transparent),
-      transparent
-    );
-
-  --shadow-glow:
-    0 0 0 1px oklch(1 0 0 / 6%),
-    0 24px 70px -24px var(--glow);
-
-  --shadow-card:
-    0 1px 0 0 oklch(1 0 0 / 6%) inset,
-    0 30px 80px -40px oklch(0 0 0 / 0.9);
+  --radius: 0.75rem;
+  --paper: #f2f1ed;
+  --ink: #0b0b0b;
+  --destructive: #b42318;
+  --destructive-foreground: #f2f1ed;
 }
 
-/* Premium clean light mode */
-html.light {
-  --background: oklch(0.985 0.002 250);
-  --foreground: oklch(0.18 0.01 260);
+/* Paper tone: light mode, and inverted sections while in dark mode. */
+:root,
+html.dark .invert-tone {
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --surface: #e9e8e3;
+  --surface-2: #dfded8;
+  --card: #e9e8e3;
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: #e4e3de;
+  --secondary-foreground: var(--ink);
+  --muted: #e4e3de;
+  --muted-foreground: #5d5d59;
+  --accent: var(--ink);
+  --accent-foreground: var(--paper);
+  --border: rgb(11 11 11 / 0.14);
+  --input: rgb(11 11 11 / 0.18);
+  --ring: rgb(11 11 11 / 0.5);
+  --glow: rgb(11 11 11 / 0.08);
+  color-scheme: light;
+}
 
-  --surface: oklch(1 0 0);
-  --surface-2: oklch(0.96 0.003 250);
-
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.01 260);
-
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.01 260);
-
-  --primary-foreground: oklch(0.99 0 0);
-
-  --secondary: oklch(0.955 0.003 250);
-  --secondary-foreground: oklch(0.22 0.01 260);
-
-  --muted: oklch(0.955 0.003 250);
-  --muted-foreground: oklch(0.48 0.01 260);
-
-  --accent-foreground: oklch(0.99 0 0);
-
-  --border: oklch(0.2 0.02 260 / 10%);
-  --input: oklch(0.2 0.02 260 / 14%);
-
-  --shadow-glow:
-    0 0 0 1px oklch(0.2 0.02 260 / 6%),
-    0 24px 70px -28px var(--glow);
-
-  --shadow-card:
-    0 1px 0 0 oklch(1 0 0 / 60%) inset,
-    0 24px 60px -34px oklch(0.2 0.05 260 / 0.28);
+/* Ink tone: dark mode, and inverted sections while in light mode. */
+html.dark,
+html:not(.dark) .invert-tone {
+  --background: var(--ink);
+  --foreground: var(--paper);
+  --surface: #151515;
+  --surface-2: #1e1e1e;
+  --card: #151515;
+  --card-foreground: var(--paper);
+  --popover: #151515;
+  --popover-foreground: var(--paper);
+  --primary: var(--paper);
+  --primary-foreground: var(--ink);
+  --secondary: #1b1b1b;
+  --secondary-foreground: var(--paper);
+  --muted: #1b1b1b;
+  --muted-foreground: #a3a29d;
+  --accent: var(--paper);
+  --accent-foreground: var(--ink);
+  --border: rgb(242 241 237 / 0.16);
+  --input: rgb(242 241 237 / 0.2);
+  --ring: rgb(242 241 237 / 0.5);
+  --glow: rgb(242 241 237 / 0.08);
+  color-scheme: dark;
 }
 
 @layer base {
@@ -162,7 +114,6 @@ html.light {
   }
 
   html {
-    scroll-behavior: smooth;
     overflow-x: hidden;
     width: 100%;
     min-height: 100%;
@@ -174,16 +125,44 @@ html.light {
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
     overflow-x: hidden;
+    /* No font inflation on rotate, no grey tap flashes on mobile. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    /* Keep content clear of notches / rounded corners in landscape. */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  img,
+  svg,
+  canvas,
+  video {
+    max-width: 100%;
+  }
+
+  /* Film grain over the whole page — gives the flat inks some tooth. */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: -50%;
+    z-index: 90;
+    pointer-events: none;
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: grain 1.2s steps(6) infinite;
+    will-change: transform;
   }
 
   ::selection {
-    background: var(--glow);
-    color: var(--foreground);
+    background: var(--foreground);
+    color: var(--background);
   }
 
   ::-webkit-scrollbar {
-    width: 9px;
+    width: 8px;
   }
 
   ::-webkit-scrollbar-track {
@@ -191,119 +170,139 @@ html.light {
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--surface-2);
+    background: var(--muted-foreground);
     border-radius: 999px;
+  }
+
+  :focus-visible {
+    outline: 1.5px solid var(--foreground);
+    outline-offset: 3px;
   }
 }
 
+/* Custom cursor (desktop fine pointers only — Chrome.tsx adds the class). */
+html.custom-cursor,
+html.custom-cursor * {
+  cursor: none !important;
+}
+
+.cursor-ring {
+  border: 1px solid #fff;
+  background: transparent;
+  transition:
+    background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.3s;
+  will-change: transform, width, height;
+}
+
+.cursor-ring[data-mode="hover"],
+.cursor-ring[data-mode="label"] {
+  background: #fff;
+}
+
+.cursor-label {
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.cursor-ring[data-mode="label"] .cursor-label {
+  opacity: 1;
+}
+
+/* Lenis owns smooth scrolling; native smooth-scroll would fight it. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+html.lenis {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Kept for older markup: in a monochrome system "gradient" text is just ink. */
 @utility text-gradient {
-  background-image: var(--gradient-text);
-  -webkit-background-clip: text;
-  background-clip: text;
+  color: var(--foreground);
+}
+
+@utility text-outline {
   color: transparent;
+  -webkit-text-stroke: 1px var(--foreground);
 }
 
 @utility bg-hero-glow {
-  background-image: var(--gradient-hero);
+  background-image: none;
 }
 
 @utility glass {
-  background: color-mix(in oklab, var(--surface) 65%, transparent);
-  backdrop-filter: blur(18px) saturate(140%);
+  background: color-mix(in oklab, var(--surface) 70%, transparent);
+  backdrop-filter: blur(14px);
   border: 1px solid var(--border);
 }
 
 @utility shadow-glow {
-  box-shadow: var(--shadow-glow);
+  box-shadow: none;
 }
 
 @utility shadow-card {
-  box-shadow: var(--shadow-card);
+  box-shadow: none;
 }
 
-@utility grid-bg {
-  background-image:
-    linear-gradient(
-      to right,
-      oklch(1 0 0 / 4%) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      to bottom,
-      oklch(1 0 0 / 4%) 1px,
-      transparent 1px
-    );
-
-  background-size: 64px 64px;
-
-  mask-image:
-    radial-gradient(
-      70% 60% at 50% 30%,
-      black,
-      transparent 100%
-    );
-}
-
-@utility noise {
-  position: relative;
+@utility hairline {
+  border-color: var(--border);
 }
 
 @utility display-heading {
   font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 0.95;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 0.92;
 }
 
 @utility eyebrow {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.22em;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted-foreground);
 }
 
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-6%, 4%); }
+  40% { transform: translate(5%, -7%); }
+  60% { transform: translate(-3%, 8%); }
+  80% { transform: translate(7%, 2%); }
+  100% { transform: translate(0, 0); }
+}
+
 @keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-
-  to {
-    transform: translateX(-50%);
-  }
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
-@keyframes float-slow {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-
-  50% {
-    transform: translate3d(0, -18px, 0);
-  }
+@keyframes marquee-reverse {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
 }
 
-@keyframes pulse-ring {
-  0% {
-    box-shadow: 0 0 0 0 var(--glow);
-  }
-
-  100% {
-    box-shadow: 0 0 0 18px transparent;
-  }
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
 }
 
 @utility animate-marquee {
-  animation: marquee 28s linear infinite;
+  animation: marquee 38s linear infinite;
 }
 
-@utility animate-float-slow {
-  animation: float-slow 7s ease-in-out infinite;
+@utility animate-marquee-reverse {
+  animation: marquee-reverse 42s linear infinite;
 }
 
-@utility animate-pulse-ring {
-  animation: pulse-ring 2.4s ease-out infinite;
+@utility animate-spin-slow {
+  animation: spin-slow 18s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
