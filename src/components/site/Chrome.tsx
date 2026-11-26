@@ -27,10 +27,14 @@ export function CursorFollower() {
   const ringRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
 
+  // Any device with a precise pointer (mouse / trackpad), at any width;
+  // re-evaluated live so plugging in a mouse or docking a tablet switches it.
   useEffect(() => {
-    const fine = window.matchMedia("(pointer: fine) and (min-width: 1024px)");
-    if (!fine.matches) return;
-    setEnabled(true);
+    const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const update = () => setEnabled(fine.matches);
+    update();
+    fine.addEventListener("change", update);
+    return () => fine.removeEventListener("change", update);
   }, []);
 
   useEffect(() => {
