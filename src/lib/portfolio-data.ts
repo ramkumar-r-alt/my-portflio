@@ -26,7 +26,7 @@ export const profile = {
   experience: "3+ Years",
   headline: "Ramkumar R",
   subtitle:
-    "Building fast, scalable and beautiful digital experiences with React, Next.js, Node.js, PostgreSQL, Redis and modern web technologies.",
+    "Building fast, scalable and beautiful digital experiences with React, Next.js, Supabase, Node.js, PostgreSQL, Redis and modern web technologies.",
   about:
     "I'm a Full Stack Engineer with experience building AI, Enterprise SaaS and FinTech products. I enjoy designing elegant user experiences while architecting scalable backend systems. My expertise spans frontend engineering, API development, database optimization, caching, asynchronous processing and reusable design systems.",
   email: "ram232488@gmail.com",
@@ -39,8 +39,9 @@ export const heroBadges = [
   "React",
   "Next.js",
   "TypeScript",
-  "Node.js",
+  "Supabase",
   "PostgreSQL",
+  "Node.js",
   "Redis",
   "RabbitMQ",
   "Tailwind CSS",
@@ -63,8 +64,8 @@ export const skillGroups = [
       "Three.js",
     ],
   },
-  { label: "Backend", items: ["Node.js", "Express.js", "REST APIs"] },
-  { label: "Database", items: ["PostgreSQL", "MongoDB", "MySQL", "Redis"] },
+  { label: "Backend", items: ["Node.js", "Express.js", "Supabase", "REST APIs"] },
+  { label: "Database", items: ["PostgreSQL", "Supabase", "MongoDB", "MySQL", "Redis"] },
   { label: "Messaging", items: ["RabbitMQ"] },
   {
     label: "Tools",
@@ -78,6 +79,7 @@ export const orbitSkills = [
   "TypeScript",
   "Node.js",
   "PostgreSQL",
+  "Supabase",
   "Redis",
   "RabbitMQ",
   "Docker",
@@ -87,7 +89,24 @@ export const orbitSkills = [
   "MongoDB",
 ];
 
+export const currentRole = {
+  company: "Bridgeharbor.io",
+  title: "Full Stack Developer",
+};
+
 export const experience = [
+  {
+    period: "Sep 2026 — Present",
+    role: "Full Stack Developer",
+    company: "Bridgeharbor.io",
+    location: "",
+    detail:
+      "Building Bridgeharbor.io's product end to end with Next.js, Supabase and PostgreSQL.",
+    highlights: [
+      "Developing full-stack product features with Next.js on the frontend and Supabase on the backend",
+      "Designing PostgreSQL data models and queries behind the platform's core workflows",
+    ],
+  },
   {
     period: "Feb 2026 — Jul 2026",
     role: "Full Stack Engineer",

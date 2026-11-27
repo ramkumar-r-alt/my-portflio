@@ -1,7 +1,5 @@
-import { motion, useScroll, useSpring } from "motion/react";
-import { useEffect, useState } from "react";
-import { sections } from "@/lib/portfolio-data";
-import { cn } from "@/lib/utils";
+import { AnimatePresence, motion, useScroll, useSpring } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 
 export function ScrollProgress() {
   const { scrollYProgress } = useScroll();
@@ -9,141 +7,184 @@ export function ScrollProgress() {
   return (
     <motion.div
       style={{ scaleX }}
-      className="fixed inset-x-0 top-0 z-50 h-px origin-left bg-primary"
+      className="fixed inset-x-0 top-0 z-[80] h-[2px] origin-left bg-white mix-blend-difference"
       aria-hidden
     />
   );
 }
 
+/**
+ * Two-part cursor in difference blend (so it is ink on paper, paper on ink):
+ *  - a precise dot that tracks the pointer 1:1
+ *  - a trailing ring that stretches along its direction of travel
+ * Over `[data-cursor="Label"]` the ring becomes a solid disc showing the label
+ * (the black text punches the backdrop back through); over other links and
+ * buttons it swells. Everything runs on refs + rAF, with no React re-renders per move.
+ */
 export function CursorFollower() {
-  const [pos, setPos] = useState({ x: -100, y: -100 });
-  const [active, setActive] = useState(false);
   const [enabled, setEnabled] = useState(false);
+  const dotRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
+  const labelRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    if (!window.matchMedia("(pointer: fine)").matches) return;
+    const fine = window.matchMedia("(pointer: fine) and (min-width: 1024px)");
+    if (!fine.matches) return;
     setEnabled(true);
-    const move = (e: MouseEvent) => {
-      setPos({ x: e.clientX, y: e.clientY });
-      const el = e.target as HTMLElement | null;
-      setActive(Boolean(el?.closest("a,button,[data-magnetic]")));
-    };
-    window.addEventListener("mousemove", move);
-    return () => window.removeEventListener("mousemove", move);
   }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
+    const dot = dotRef.current;
+    const ring = ringRef.current;
+    const label = labelRef.current;
+    if (!dot || !ring || !label) return;
+
+    document.documentElement.classList.add("custom-cursor");
+
+    const pos = { x: -200, y: -200 };
+    const trail = { x: -200, y: -200 };
+    let size = 36; // current ring diameter
+    let targetSize = 36;
+    let mode: "idle" | "hover" | "label" = "idle";
+    let pressed = false;
+    let visible = false;
+    let raf = 0;
+
+    const setMode = (el: Element | null) => {
+      const labelled = el?.closest<HTMLElement>("[data-cursor]");
+      const text = labelled?.getAttribute("data-cursor") ?? "";
+      if (labelled && text) {
+        mode = "label";
+        label.textContent = text;
+        targetSize = 96;
+      } else if (el?.closest("a,button,[data-magnetic],[data-cursor]")) {
+        mode = "hover";
+        targetSize = 64;
+      } else {
+        mode = "idle";
+        targetSize = 36;
+      }
+      ring.setAttribute("data-mode", mode);
+    };
+
+    const onMove = (e: MouseEvent) => {
+      pos.x = e.clientX;
+      pos.y = e.clientY;
+      if (!visible) {
+        visible = true;
+        trail.x = pos.x;
+        trail.y = pos.y;
+        dot.style.opacity = "1";
+        ring.style.opacity = "1";
+      }
+      setMode(e.target as Element | null);
+    };
+    const onLeave = () => {
+      visible = false;
+      dot.style.opacity = "0";
+      ring.style.opacity = "0";
+    };
+    const onDown = () => (pressed = true);
+    const onUp = () => (pressed = false);
+
+    const tick = () => {
+      raf = requestAnimationFrame(tick);
+      const dx = pos.x - trail.x;
+      const dy = pos.y - trail.y;
+      trail.x += dx * 0.18;
+      trail.y += dy * 0.18;
+      size += ((pressed ? targetSize * 0.8 : targetSize) - size) * 0.2;
+
+      // Stretch along the velocity vector while idle — a little liquid lag.
+      const speed = Math.min(Math.hypot(dx, dy), 140);
+      const stretch = mode === "idle" ? speed / 220 : 0;
+      const angle = Math.atan2(dy, dx);
+
+      dot.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0) translate(-50%, -50%) scale(${mode === "idle" ? 1 : 0})`;
+      ring.style.width = `${size}px`;
+      ring.style.height = `${size}px`;
+      ring.style.transform = `translate3d(${trail.x}px, ${trail.y}px, 0) translate(-50%, -50%) rotate(${angle}rad) scale(${1 + stretch}, ${1 - stretch * 0.5})`;
+      label.style.transform = `rotate(${-angle}rad)`;
+    };
+    tick();
+
+    window.addEventListener("mousemove", onMove, { passive: true });
+    document.addEventListener("mouseleave", onLeave);
+    window.addEventListener("mousedown", onDown);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      cancelAnimationFrame(raf);
+      document.documentElement.classList.remove("custom-cursor");
+      window.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseleave", onLeave);
+      window.removeEventListener("mousedown", onDown);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, [enabled]);
 
   if (!enabled) return null;
 
   return (
-    <motion.div
-      aria-hidden
-      className="pointer-events-none fixed left-0 top-0 z-[60] hidden rounded-full border border-primary/60 mix-blend-screen lg:block"
-      animate={{
-        x: pos.x - (active ? 24 : 9),
-        y: pos.y - (active ? 24 : 9),
-        width: active ? 48 : 18,
-        height: active ? 48 : 18,
-        backgroundColor: active ? "var(--glow)" : "transparent",
-      }}
-      transition={{ type: "spring", stiffness: 500, damping: 34, mass: 0.4 }}
-    />
-  );
-}
-
-export function SectionDots() {
-  const [activeId, setActiveId] = useState<string>(sections[0]?.id ?? "hero");
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) setActiveId(visible.target.id);
-      },
-      { threshold: [0.25, 0.5, 0.75], rootMargin: "-30% 0px -30% 0px" },
-    );
-    sections.forEach((s) => {
-      const el = document.getElementById(s.id);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <nav
-      aria-label="Section navigation"
-      className="fixed right-6 top-1/2 z-40 hidden -translate-y-1/2 flex-col items-end gap-3 xl:flex"
-    >
-      {sections.map((s) => (
-        <a
-          key={s.id}
-          href={`#${s.id}`}
-          className="group flex items-center gap-3"
-          aria-current={activeId === s.id ? "true" : undefined}
-        >
-          <span className="translate-x-2 font-mono text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
-            {s.label}
-          </span>
-          <span
-            className={cn(
-              "h-1.5 rounded-full bg-muted-foreground/40 transition-all duration-300",
-              activeId === s.id ? "w-6 bg-primary" : "w-1.5 group-hover:bg-foreground",
-            )}
-          />
-        </a>
-      ))}
-    </nav>
-  );
-}
-
-export function Preloader() {
-  const [done, setDone] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setDone(true), 1400);
-    return () => clearTimeout(t);
-  }, []);
-
-  return (
-    <motion.div
-      aria-hidden
-      initial={{ opacity: 1 }}
-      animate={done ? { opacity: 0, pointerEvents: "none" } : { opacity: 1 }}
-      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-background"
-    >
-      <div className="flex flex-col items-center gap-6">
-        <motion.svg
-          width="86"
-          height="86"
-          viewBox="0 0 100 100"
-          initial={{ rotate: -8, opacity: 0 }}
-          animate={{ rotate: 0, opacity: 1 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <motion.path
-            d="M26 78 V22 h24 a16 16 0 0 1 0 32 H32 l30 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-primary"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 1.1, ease: "easeInOut" }}
-          />
-        </motion.svg>
-        <div className="h-px w-40 overflow-hidden bg-border">
-          <motion.div
-            className="h-full bg-primary"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            style={{ originX: 0 }}
-            transition={{ duration: 1.3, ease: "easeInOut" }}
-          />
-        </div>
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-[85] mix-blend-difference">
+      <div
+        ref={ringRef}
+        data-mode="idle"
+        className="cursor-ring absolute left-0 top-0 flex items-center justify-center rounded-full opacity-0"
+      >
+        <span
+          ref={labelRef}
+          className="cursor-label font-mono text-[0.65rem] uppercase tracking-[0.16em] text-black"
+        />
       </div>
-    </motion.div>
+      <div ref={dotRef} className="absolute left-0 top-0 h-1.5 w-1.5 rounded-full bg-white opacity-0" />
+    </div>
+  );
+}
+
+/** Ink curtain with a 0→100 counter that lifts away to reveal the page. */
+export function Preloader() {
+  const [count, setCount] = useState(0);
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    const start = performance.now();
+    const duration = 1100;
+    let raf = 0;
+    const tick = (now: number) => {
+      const p = Math.min((now - start) / duration, 1);
+      setCount(Math.round((1 - Math.pow(1 - p, 3)) * 100));
+      if (p < 1) raf = requestAnimationFrame(tick);
+      else setTimeout(() => setDone(true), 180);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
+    <AnimatePresence>
+      {done ? null : (
+        <motion.div
+          key="preloader"
+          aria-hidden
+          exit={{ y: "-100%" }}
+          transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
+          className="invert-tone fixed inset-0 z-[95] flex flex-col justify-between bg-background p-5 text-foreground sm:p-8 lg:p-12"
+        >
+          <div className="flex justify-between font-mono text-[0.7rem] uppercase tracking-[0.16em] text-muted-foreground">
+            <span>Ramkumar R</span>
+            <span>Full Stack Engineer</span>
+          </div>
+          <div className="flex items-end justify-between">
+            <span className="display-heading text-[clamp(5rem,22vw,20rem)] leading-[0.8] tabular-nums">
+              {String(count).padStart(3, "0")}
+            </span>
+            <span className="mb-3 font-mono text-[0.7rem] uppercase tracking-[0.16em] text-muted-foreground">
+              Loading portfolio
+            </span>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

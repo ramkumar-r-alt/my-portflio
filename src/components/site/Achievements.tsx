@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useInView } from "motion/react";
 import { achievements } from "@/lib/portfolio-data";
-import { Reveal, Section, SectionHeading } from "./Reveal";
+import { Reveal, Section } from "./Reveal";
 
 function Counter({ value }: { value: string }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -16,7 +16,7 @@ function Counter({ value }: { value: string }) {
     let raf = 0;
     const start = performance.now();
     const tick = (now: number) => {
-      const p = Math.min((now - start) / 1200, 1);
+      const p = Math.min((now - start) / 1400, 1);
       const eased = 1 - Math.pow(1 - p, 3);
       setDisplay(String(Math.round(numeric * eased)));
       if (p < 1) raf = requestAnimationFrame(tick);
@@ -26,24 +26,29 @@ function Counter({ value }: { value: string }) {
   }, [inView, numeric]);
 
   return (
-    <span ref={ref} className="display-heading text-5xl text-gradient sm:text-6xl">
+    <span ref={ref} className="display-heading block text-[clamp(4.5rem,9vw,9rem)] leading-[0.85] tabular-nums">
       {prefix}
       {Number.isNaN(numeric) ? value : display}
-      {suffix}
+      <em>{suffix}</em>
     </span>
   );
 }
 
 export function Achievements() {
   return (
-    <Section id="achievements">
-      <SectionHeading eyebrow="05 — Achievements" title="Numbers behind the work." />
-      <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <Section id="achievements" inverted className="py-24 lg:py-32">
+      <Reveal>
+        <span className="eyebrow">(05) — By the numbers</span>
+      </Reveal>
+      <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-4">
         {achievements.map((item, i) => (
           <Reveal key={item.label} delay={i * 0.08}>
-            <div className="glass shadow-card h-full rounded-2xl p-7">
-              <Counter value={item.value} />
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{item.label}</p>
+            <div className="flex h-full flex-col justify-between gap-10 border-t border-border py-8 sm:border-l sm:px-6 lg:border-t-0">
+              <span className="font-mono text-[0.7rem] text-muted-foreground">0{i + 1}</span>
+              <div>
+                <Counter value={item.value} />
+                <p className="mt-4 max-w-[18ch] text-sm leading-relaxed text-muted-foreground">{item.label}</p>
+              </div>
             </div>
           </Reveal>
         ))}
