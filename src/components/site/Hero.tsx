@@ -1,42 +1,27 @@
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { currentRole, heroBadges, profile } from "@/lib/portfolio-data";
-import { HeroOutline } from "./HeroOutline";
 import { MagneticButton } from "./MagneticButton";
-
-// Client-only and lazily loaded; if the chunk fails, the hero falls back to
-// pure typography rather than letting the route error boundary take over.
-const HeroAscii = lazy(() =>
-  import("./HeroAscii").catch(() => ({
-    default: (_: { className?: string }): React.JSX.Element | null => null,
-  })),
-);
 
 /** Time the preloader takes to clear; hero entrances are staged after it. */
 export const INTRO_DELAY = 1.55;
 const ease = [0.16, 1, 0.3, 1] as const;
 const GLYPHS = "01{}[]<>/\\=+*#$%&;:";
+const randomGlyph = () => GLYPHS[(Math.random() * GLYPHS.length) | 0]!;
 
 /**
- * The name "decodes" out of the same code glyphs the ASCII knot is drawn
- * with. Each letter reserves its final width (rendered invisibly), so the
- * line never reflows while the glyphs cycle on top.
+ * The name "decodes" out of code glyphs on load, and any letter you hover
+ * briefly scrambles back into glyphs before settling. Each letter reserves
+ * its final width (rendered invisibly), so the line never reflows.
  */
-function DecodeLine({
-  text,
-  delay,
-  className,
-  italic = false,
-}: {
-  text: string;
-  delay: number;
-  className?: string;
-  italic?: boolean;
-}) {
+function DecodeLine({ text, delay, className }: { text: string; delay: number; className?: string }) {
   const [resolved, setResolved] = useState(0);
+  const [scrambling, setScrambling] = useState<Set<number>>(() => new Set());
   const [, setTick] = useState(0);
+  const timers = useRef<number[]>([]);
 
+  // Intro decode.
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setResolved(text.length);
@@ -54,23 +39,42 @@ function DecodeLine({
     return () => window.clearInterval(id);
   }, [text, delay]);
 
+  // Keep glyphs cycling while any hovered letter is scrambling.
+  useEffect(() => {
+    if (scrambling.size === 0) return;
+    const id = window.setInterval(() => setTick((t) => t + 1), 50);
+    return () => window.clearInterval(id);
+  }, [scrambling]);
+
+  useEffect(() => () => timers.current.forEach((t) => window.clearTimeout(t)), []);
+
+  const scramble = (i: number) => {
+    if (i >= resolved || scrambling.has(i)) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    setScrambling((s) => new Set(s).add(i));
+    timers.current.push(
+      window.setTimeout(() => {
+        setScrambling((s) => {
+          const next = new Set(s);
+          next.delete(i);
+          return next;
+        });
+      }, 420),
+    );
+  };
+
   return (
-    <span
-      aria-hidden
-      data-glass-line
-      data-italic={italic ? "true" : "false"}
-      className={`block whitespace-nowrap ${className ?? ""}`}
-    >
+    <span aria-hidden className={`block whitespace-nowrap ${className ?? ""}`}>
       {text.split("").map((char, i) => {
-        const done = i < resolved;
+        const showGlyph = i >= resolved || scrambling.has(i);
         return (
-          <span key={`${char}-${i}`} className="relative inline-block">
-            <span data-glass-char className="transition-opacity duration-300" style={{ opacity: done ? 1 : 0 }}>
-              {char === " " ? " " : char}
+          <span key={`${char}-${i}`} className="relative inline-block" onMouseEnter={() => scramble(i)}>
+            <span className="transition-opacity duration-200" style={{ opacity: showGlyph ? 0 : 1 }}>
+              {char}
             </span>
-            {!done ? (
+            {showGlyph ? (
               <span className="absolute inset-0 flex items-center justify-center font-mono text-[0.42em] not-italic">
-                {GLYPHS[(Math.random() * GLYPHS.length) | 0]}
+                {randomGlyph()}
               </span>
             ) : null}
           </span>
@@ -81,9 +85,8 @@ function DecodeLine({
 }
 
 /**
- * Sizes the name so "Ramkumar" exactly fills the space the illustration
- * leaves beside it (desktop) or the full width (mobile), capped by viewport
- * height so it never crowds short/landscape screens.
+ * Sizes the name so "Ramkumar" exactly fills the container width, capped by
+ * viewport height so it never crowds short/landscape screens.
  */
 function useFitName(text: string) {
   const boxRef = useRef<HTMLHeadingElement>(null);
@@ -98,9 +101,9 @@ function useFitName(text: string) {
       const natural = measure.getBoundingClientRect().width; // at 100px
       const available = box.clientWidth;
       if (!natural || !available) return;
-      const byWidth = (available / natural) * 100 * 0.985;
-      const byHeight = window.innerHeight * (window.innerWidth >= 1024 ? 0.34 : 0.24);
-      setSize(Math.max(40, Math.min(byWidth, byHeight, 320)));
+      const byWidth = (available / natural) * 100 * 0.98;
+      const byHeight = window.innerHeight * (window.innerWidth >= 1024 ? 0.38 : 0.3);
+      setSize(Math.max(40, Math.min(byWidth, byHeight, 360)));
     };
     fit();
     document.fonts?.ready.then(fit);
@@ -139,15 +142,12 @@ function ScrollBadge() {
 
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
-  const artRef = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
   const { boxRef, measureRef, size } = useFitName("Ramkumar");
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const nameY = useTransform(scrollYProgress, [0, 1], [0, 120]);
-  const artY = useTransform(scrollYProgress, [0, 1], [0, -60]);
-  const artOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
+  // Gentle drift + fade: the name eases away before it can reach the row below.
+  const nameY = useTransform(scrollYProgress, [0, 1], [0, 48]);
+  const nameOpacity = useTransform(scrollYProgress, [0, 0.45], [1, 0]);
 
   return (
     <section id="hero" ref={ref} className="relative min-h-screen min-h-[100svh] overflow-hidden">
@@ -184,27 +184,35 @@ export function Hero() {
           </p>
         </motion.div>
 
-        {/* Name, full width. The ASCII knot (below) is layered over it. */}
-        <div className="flex flex-1 items-end pb-8 pt-[16svh] sm:pt-[26svh] [@media(max-height:520px)]:items-center [@media(max-height:520px)]:py-8 lg:items-center lg:py-6">
+        {/* Name — the hero is pure typography. */}
+        <div className="flex flex-1 items-center py-10 lg:py-8">
           <motion.h1
             ref={boxRef}
-            style={{ y: nameY, fontSize: size ?? undefined }}
+            data-cursor=""
+            style={{ y: nameY, opacity: nameOpacity, fontSize: size ?? undefined }}
             className="display-heading relative w-full text-[clamp(3.5rem,17vw,16rem)]"
           >
             <span className="sr-only">
               {profile.headline} — {profile.title}
             </span>
-            {/* Invisible ruler: natural width of the name at 100px. */}
+            {/* Invisible ruler at 100px, built from per-letter inline-blocks
+                exactly like DecodeLine (no kerning), so the fit is exact.
+                Tracking is re-declared: an inherited em value would be the
+                h1's absolute px, far too tight at 100px. */}
             <span
               ref={measureRef}
               aria-hidden
-              className="pointer-events-none invisible absolute left-0 top-0 whitespace-nowrap text-[100px]"
+              className="pointer-events-none invisible absolute left-0 top-0 w-max whitespace-nowrap text-[100px] tracking-[-0.025em]"
             >
-              Ramkumar
+              {"Ramkumar".split("").map((c, i) => (
+                <span key={i} className="inline-block">
+                  {c}
+                </span>
+              ))}
             </span>
             <DecodeLine text="Ramkumar" delay={INTRO_DELAY} className="leading-[0.84]" />
             <span className="flex items-end gap-[0.12em]">
-              <DecodeLine text="R." delay={INTRO_DELAY + 0.55} italic className="italic leading-[0.84]" />
+              <DecodeLine text="R." delay={INTRO_DELAY + 0.55} className="italic leading-[0.84]" />
               <motion.span
                 aria-hidden
                 initial={{ opacity: 0, x: -16 }}
@@ -248,38 +256,6 @@ export function Hero() {
           </div>
         </motion.div>
       </div>
-
-      {/*
-        ASCII knot layered OVER the name in difference blend: its glyphs read
-        as ink on paper and invert to paper inside the black letterforms, so
-        the knot visibly weaves through the name while the name stays legible.
-      */}
-      <motion.div
-        ref={artRef}
-        style={{ y: artY, opacity: artOpacity }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: INTRO_DELAY - 0.2, duration: 1.6 }}
-        className="pointer-events-none absolute inset-x-0 top-[21svh] z-20 h-[36svh] text-white mix-blend-difference sm:top-[13svh] sm:h-[46svh] [@media(max-height:520px)]:left-auto [@media(max-height:520px)]:right-[2%] [@media(max-height:520px)]:top-[16%] [@media(max-height:520px)]:h-[62%] [@media(max-height:520px)]:w-[55%] lg:inset-x-auto lg:right-[2%] lg:top-[10%] lg:h-[78%] lg:w-[58%]"
-      >
-        {mounted ? (
-          <Suspense fallback={null}>
-            <HeroAscii className="h-full w-full" />
-          </Suspense>
-        ) : null}
-      </motion.div>
-
-      {/* Where the knot crosses the name, the letters turn to outlines. */}
-      {mounted ? (
-        <HeroOutline
-          sectionRef={ref}
-          nameRef={boxRef}
-          artRef={artRef}
-          nameY={nameY}
-          artY={artY}
-          delay={INTRO_DELAY + 1.3}
-        />
-      ) : null}
     </section>
   );
 }
